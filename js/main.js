@@ -37,13 +37,13 @@ var GAME_TYPE_GRAY_SCALE = 4;
 var BACKGROUND_COLOR = '#CCCCCC'; //
 var SCENE_WIDTH = 1200;
 var SCENE_HEIGHT = 600;
-var RECT_WIDTH = 40;
+var SQUARE_WIDTH = 40;
 var RECTS_SEPARATION = 5;
-var RECT_BORDER = 1;
-var MAX_RECT_BORDER = 5;
+var squaresBorder = 1;
+var MAX_squaresBorder = 5;
 var ANIMATIONS_ENABLED = true;
 var BORDER_COLOR = "#000000";
-var rectArea = RECT_WIDTH + RECTS_SEPARATION;
+var rectArea = SQUARE_WIDTH + RECTS_SEPARATION;
 var gameType;
 
 //Game playing
@@ -58,11 +58,7 @@ var recsSceneHeight;
 var recsSceneX;
 var recsSceneY;
 var playEnabled;
-
-//User
-var userPositionX=0;
-var userPositionY=0;
-var userRectColor;
+var userSquare;
 var canvas;
 var canvasContext;
 
@@ -84,27 +80,22 @@ function drawCanvas(){
 		for(var i=0;i<xRectsCount;i++){
 			for(var j=0;j<yRectsCount;j++){
 				canvasContext.fillStyle = rectsColorArray[i][j];
-				drawRect(recsSceneX + rectArea *i, recsSceneY + rectArea*j, RECT_WIDTH, RECT_WIDTH, canvasContext);
+				drawRect(recsSceneX + rectArea *i, recsSceneY + rectArea*j, SQUARE_WIDTH, SQUARE_WIDTH, canvasContext);
 			}
 		}
-	drawUserRect(userPositionX, userPositionY, RECT_WIDTH, RECT_WIDTH, canvasContext);
+	userSquare.border = squaresBorder;
+	userSquare.draw();
 	}
 }
 		
 function drawRect(x, y, w, h, canvasContext){
 	var rectColor = canvasContext.fillStyle;
 	canvasContext.fillStyle = BORDER_COLOR;
-	canvasContext.fillRect (x - RECT_BORDER, y - RECT_BORDER, w + 2 * RECT_BORDER, h + 2 * RECT_BORDER);
+	canvasContext.fillRect (x - squaresBorder, y - squaresBorder, w + 2 * squaresBorder, h + 2 * squaresBorder);
 	canvasContext.fillStyle = rectColor;
 	canvasContext.fillRect (x, y, w, h);
 }
 		
-function drawUserRect(x, y, w, h, canvasContext){
-	canvasContext.fillStyle = BORDER_COLOR;
-	canvasContext.fillRect (x - RECT_BORDER, y - RECT_BORDER, w + 2 * RECT_BORDER, h + 2 * RECT_BORDER);
-	canvasContext.fillStyle = userRectColor;
-	canvasContext.fillRect (x, y, w, h);
-}
 
 function log(text, isNew){
 	var layer=document.getElementById("log");
@@ -154,29 +145,32 @@ function getRandomColor() {
 document.onkeydown=function(e){
 	//dibujarCanvas();
 	if(playEnabled){
-		var originalPositionX = userPositionX;
-		var originalPositionY = userPositionY;
+		var originalPositionX = userSquare.positionX;
+		var originalPositionY = userSquare.positionY;
+		//log("userSquare.positionX: " + userSquare.positionX + " userSquare.positionY: " + userSquare.positionY);
 		switch(e.keyCode){
 			case 39:
-				userPositionX+=rectArea;
+				userSquare.moveX(rectArea);
 				break;
 			case 37:
-				userPositionX-=rectArea;
+				userSquare.moveX(-rectArea);
 				break;
 			case 38:
-				userPositionY-=rectArea;
+				userSquare.moveY(-rectArea);
 				break;
 			case 40:
-				userPositionY+=rectArea;
+				userSquare.moveY(rectArea);
 				break;
 			default:
 				break;
 		}
-		if (nextUserPositionIsValid(originalPositionX, originalPositionY))
+		if (nextUserPositionIsValid(originalPositionX, originalPositionY)){
 			var a; //drawCanvas();
+			//log("nextUserPositionIsValid = true");
+		}
 		else{
-			userPositionX = originalPositionX;
-			userPositionY = originalPositionY;
+			//log("nextUserPositionIsValid = false");
+			userSquare.updatePosition(originalPositionX, originalPositionY);
 		}
 	}
 }
@@ -220,8 +214,7 @@ function initRectsScene(){
 	xRectsCount = INITIAL_RECTS_NUMBER;
 	yRectsCount = INITIAL_RECTS_NUMBER;
 	updateRectsScene();
-	userPositionX = recsSceneX - rectArea;
-	userPositionY = recsSceneY - rectArea;
+	userSquare = new Square(recsSceneX - rectArea, recsSceneY - rectArea, SQUARE_WIDTH, getRandomColor(), canvasContext, squaresBorder);
 }
 
 function updateRectsScene(){
@@ -233,26 +226,21 @@ function updateRectsScene(){
 }
 
 function nextUserPositionIsValid(originalPositionX, originalPositionY){
-	if(userPositionX >= recsSceneX + recsSceneWidth + rectArea)
-		return false;
-	else if(userPositionY >= recsSceneY + recsSceneHeight + rectArea)
-		return false;
-	else if(userPositionX < recsSceneX - rectArea)
-		return false;
-	else if(userPositionY < recsSceneY - rectArea)
-		return false;
+	//log("userSquare.positionX: " + userSquare.positionX + " userSquare.positionY: " + userSquare.positionY + "recsSceneX: " + recsSceneX + "recsSceneY: " + recsSceneY + "recsSceneWidth: " + recsSceneWidth + "recsSceneHeight: " + recsSceneHeight + "rectArea: " + rectArea );
+	if(!userSquare.actualPositionIsValid(recsSceneX, recsSceneY, recsSceneWidth, recsSceneHeight, rectArea))
+		return false;	
 	
-	if(userPositionX >= recsSceneX && userPositionX < recsSceneX + recsSceneWidth && userPositionY >= recsSceneY && userPositionY < recsSceneY + recsSceneHeight)
+	if(userSquare.isInside(recsSceneX, recsSceneY, recsSceneWidth, recsSceneHeight))
 		moveRects(originalPositionX, originalPositionY);
 	
 	return true;
 }
 
 function moveRects(originalPositionX, originalPositionY){
-	if(userPositionX - originalPositionX != 0)
-		moveRow((userPositionY - recsSceneY) / rectArea, (userPositionX - originalPositionX)/ rectArea);
-	if(userPositionY - originalPositionY != 0)
-		moveCol((userPositionX - recsSceneX) / rectArea, (userPositionY - originalPositionY) / rectArea);
+	if(userSquare.positionX - originalPositionX != 0)
+		moveRow((userSquare.positionY - recsSceneY) / rectArea, (userSquare.positionX - originalPositionX)/ rectArea);
+	if(userSquare.positionY - originalPositionY != 0)
+		moveCol((userSquare.positionX - recsSceneX) / rectArea, (userSquare.positionY - originalPositionY) / rectArea);
 	checkForCompletes();
 }
 
@@ -262,42 +250,42 @@ function checkForCompletes(){
 }
 
 function moveRow(row, movement){
-	var auxcolor = userRectColor;
+	var auxcolor = userSquare.color;
 	if(movement<0){ //to left
-		userRectColor = rectsColorArray[0][row];
+		userSquare.color = rectsColorArray[0][row];
 		for(var i=0;i<xRectsCount-1;i++){
 			rectsColorArray[i][row] = rectsColorArray[i+1][row];
 		}
 		rectsColorArray[xRectsCount-1][row] = auxcolor;
-		userPositionX-=(xRectsCount)*rectArea;
+		userSquare.moveX(-(xRectsCount)*rectArea);
 	}
 	else{ //to right
-		userRectColor = rectsColorArray[xRectsCount-1][row];
+		userSquare.color = rectsColorArray[xRectsCount-1][row];
 		for(var i=xRectsCount-2;i>=0;i--){
 			rectsColorArray[i+1][row] = rectsColorArray[i][row];
 		}
 		rectsColorArray[0][row] = auxcolor;
-		userPositionX+=(xRectsCount)*rectArea;
+		userSquare.moveX((xRectsCount)*rectArea);
 	}
 }
 
 function moveCol(col, movement){
-	var auxcolor = userRectColor;
+	var auxcolor = userSquare.color;
 	if(movement<0){ //to bottom
-		userRectColor = rectsColorArray[col][0];
+		userSquare.color = rectsColorArray[col][0];
 		for(var i=0;i<yRectsCount-1;i++){
 			rectsColorArray[col][i] = rectsColorArray[col][i+1];
 		}
 		rectsColorArray[col][yRectsCount-1] = auxcolor;
-		userPositionY-=(yRectsCount)*rectArea;
+		userSquare.moveY(-(yRectsCount)*rectArea);
 	}
 	else{ //to top
-		userRectColor = rectsColorArray[col][yRectsCount-1];
+		userSquare.color = rectsColorArray[col][yRectsCount-1];
 		for(var i=yRectsCount-2;i>=0;i--){
 			rectsColorArray[col][i+1] = rectsColorArray[col][i];
 		}
 		rectsColorArray[col][0] = auxcolor;
-		userPositionY+=(yRectsCount)*rectArea;
+		userSquare.moveY((yRectsCount)*rectArea);
 	}
 }
 
@@ -334,10 +322,7 @@ function deleteCol(col){
 			rectsColorArray[i][j] = rectsColorArray[i+1][j];
 		}
 	}
-	if(userPositionX >= recsSceneX+recsSceneWidth)
-		userPositionX-=rectArea/2;
-	else
-		userPositionX+=rectArea/2;
+	userSquare.updatePositionByDeletingCol(recsSceneX, recsSceneWidth, rectArea);
 	xRectsCount--;
 	
 	resizeRectWidth();
@@ -356,10 +341,7 @@ function deleteRow(row){
 			rectsColorArray[j][i] = rectsColorArray[j][i+1];
 		}
 	}
-	if(userPositionY >= recsSceneY+recsSceneHeight)
-		userPositionY-=rectArea/2;
-	else
-		userPositionY+=rectArea/2;
+	userSquare.updatePositionByDeletingRow(recsSceneY, recsSceneHeight, rectArea);
 	yRectsCount--;	
 	
 	resizeRectWidth();
@@ -426,7 +408,7 @@ function levelCounter(){
 	}
 	drawCanvas();
 	if(ANIMATIONS_ENABLED)
-		RECT_BORDER=MAX_RECT_BORDER*levelCount/levelMaxCount;
+		squaresBorder=MAX_squaresBorder*levelCount/levelMaxCount;
 	levelTimer = setTimeout("levelCounter()", LEVEL_COUNTER_DURATION);
 }
 
@@ -435,19 +417,13 @@ function nextLevel(){
 		xRectsCount++;
 		for(var i=0;i<yRectsCount;i++)
 			rectsColorArray[xRectsCount-1][i] = getRandomColor();
-		if(userPositionX >= recsSceneX+recsSceneWidth)
-			userPositionX+=rectArea/2;
-		else
-			userPositionX-=rectArea/2;
+		userSquare.updatePositionByAddingCol(recsSceneX, recsSceneWidth, rectArea);
 	}
 	else{
 		yRectsCount++;
 		for(var i=0;i<xRectsCount;i++)
 			rectsColorArray[i][yRectsCount-1] = getRandomColor();
-		if(userPositionY >= recsSceneY+recsSceneHeight)
-			userPositionY+=rectArea/2;
-		else
-			userPositionY-=rectArea/2;
+		userSquare.updatePositionByAddingRow(recsSceneY, recsSceneHeight, rectArea);
 	}
 	if(isLooser()){
 		playEnabled = false;
@@ -502,26 +478,4 @@ function calculateLevelTimerBarColor(){
 	var barColor = "#" + hexFromInt(redComponent) + hexFromInt(greenComponent) + "00";
 	//log("barColor: " + barColor + " redComponent: " + hexFromInt(redComponent) + " greenComponent: " + hexFromInt(greenComponent)); 	
 	return barColor;
-}
-//Until 255
-function hexFromInt(value){
-	firstCharacter = Math.floor(value/16);
-	secondCharacter = Math.floor(value - firstCharacter * 16);
-	return convertToHexCharacter(firstCharacter) + convertToHexCharacter(secondCharacter);
-}
-
-function convertToHexCharacter(value){
-	if(value == 10)
-		return 'A';
-	if(value == 11)
-		return 'B';
-	if(value == 12)
-		return 'C';
-	if(value == 13)
-		return 'D';
-	if(value == 14)
-		return 'E';
-	if(value == 15)
-		return 'F';
-	return "" + value;
 }
