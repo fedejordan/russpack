@@ -42,24 +42,25 @@ var squaresBorder = 1;
 var MAX_squaresBorder = 5;
 var ANIMATIONS_ENABLED = true;
 var BORDER_COLOR = "#000000";
-var rectArea = SQUARE_WIDTH + RECTS_SEPARATION;
+var squareArea = SQUARE_WIDTH + RECTS_SEPARATION;
 var gameType;
 
 //Game playing
-var INITIAL_RECTS_NUMBER = 5;
+var INITIAL_SQUARES_NUMBER = 5;
 var NUMBER_OF_COLORS = 5;
-var MAX_RECTS = 10;
-var xRectsCount;
-var yRectsCount;
+var MAX_SQUARES_NUMBER = 10;
+var xSquaresCount;
+var ySquaresCount;
 var rectsColorArray;
-var recsSceneWidth;
-var recsSceneHeight;
-var recsSceneX;
-var recsSceneY;
+var squaresSceneWidth;
+var squaresSceneHeight;
+var squaresSceneX;
+var squaresSceneY;
 var playEnabled;
 var userSquare;
 var canvas;
 var canvasContext;
+var squaresMatrix;
 
 //Timer
 var GAME_SPEED = 10;
@@ -76,10 +77,13 @@ function drawCanvas(){
 	clearScreen();
 	if(playEnabled){
 		drawLevelTimerBar();
-		for(var i=0;i<xRectsCount;i++){
-			for(var j=0;j<yRectsCount;j++){
-				canvasContext.fillStyle = rectsColorArray[i][j];
-				drawRect(recsSceneX + rectArea *i, recsSceneY + rectArea*j, SQUARE_WIDTH, SQUARE_WIDTH, canvasContext);
+		for(var i=0;i<xSquaresCount;i++){
+			for(var j=0;j<ySquaresCount;j++){
+				//canvasContext.fillStyle = rectsColorArray[i][j];
+				//drawRect(squaresSceneX + squareArea *i, squaresSceneY + squareArea*j, SQUARE_WIDTH, SQUARE_WIDTH, canvasContext);
+				squaresMatrix[i][j].updatePosition(squaresSceneX + squareArea *i, squaresSceneY + squareArea*j);
+				squaresMatrix[i][j].border = squaresBorder;
+				squaresMatrix[i][j].draw();
 			}
 		}
 	userSquare.border = squaresBorder;
@@ -136,16 +140,16 @@ document.onkeydown=function(e){
 		//log("userSquare.positionX: " + userSquare.positionX + " userSquare.positionY: " + userSquare.positionY);
 		switch(e.keyCode){
 			case 39:
-				userSquare.moveX(rectArea);
+				userSquare.moveX(squareArea);
 				break;
 			case 37:
-				userSquare.moveX(-rectArea);
+				userSquare.moveX(-squareArea);
 				break;
 			case 38:
-				userSquare.moveY(-rectArea);
+				userSquare.moveY(-squareArea);
 				break;
 			case 40:
-				userSquare.moveY(rectArea);
+				userSquare.moveY(squareArea);
 				break;
 			default:
 				break;
@@ -162,67 +166,67 @@ function initScene(){
 	canvasContext = canvas.getContext('2d');
 	playEnabled = true;
 	gameType = GAME_TYPE_NORMAL;
-	initRectsScene();
-	initRects();
+	initSquaresScene();
+	initSquares();
 	drawCanvas();
 	initCounters();
 }
 
 function printRectsColor(){
-	for(var i=0;i<xRectsCount;i++){
-		for(var j=0;j<yRectsCount;j++){
+	for(var i=0;i<xSquaresCount;i++){
+		for(var j=0;j<ySquaresCount;j++){
 			log("i: " + i + " j: " + j + " color: " + rectsColorArray[i][j], false);
 		}
 	}
 }
 
-function initRects(){
-	rectsColorArray = new Array(MAX_RECTS);
-	for(var i=0;i<MAX_RECTS;i++)
-		rectsColorArray[i] = new Array(MAX_RECTS)
-		
-	for(var i=0;i<MAX_RECTS;i++){
-		for(var j=0;j<MAX_RECTS;j++){
-			rectsColorArray[i][j] = getRandomColor();
+function initSquares(){
+	//rectsColorArray = new Array(MAX_SQUARES_NUMBER);
+	squaresMatrix = new Array(MAX_SQUARES_NUMBER);
+	for(var i=0;i<MAX_SQUARES_NUMBER;i++){
+		//rectsColorArray[i] = new Array(MAX_SQUARES_NUMBER);
+		squaresMatrix[i] = new Array(MAX_SQUARES_NUMBER);
+	}
+	for(var i=0;i<MAX_SQUARES_NUMBER;i++){
+		for(var j=0;j<MAX_SQUARES_NUMBER;j++){
+			//rectsColorArray[i][j] = getRandomColor();
+			squaresMatrix[i][j] = new Square(0, 0, SQUARE_WIDTH, getRandomColor(), canvasContext, squaresBorder);
 		}
 	}
 	
-	userRectColor = getRandomColor();
-	//printRectsColor();
-	
 }
 
-function initRectsScene(){
-	xRectsCount = INITIAL_RECTS_NUMBER;
-	yRectsCount = INITIAL_RECTS_NUMBER;
-	updateRectsScene();
-	userSquare = new Square(recsSceneX - rectArea, recsSceneY - rectArea, SQUARE_WIDTH, getRandomColor(), canvasContext, squaresBorder);
+function initSquaresScene(){
+	xSquaresCount = INITIAL_SQUARES_NUMBER;
+	ySquaresCount = INITIAL_SQUARES_NUMBER;
+	updateSquaresScene();
+	userSquare = new Square(squaresSceneX - squareArea, squaresSceneY - squareArea, SQUARE_WIDTH, getRandomColor(), canvasContext, squaresBorder);
 }
 
-function updateRectsScene(){
-	//log("xRectsCount: " + xRectsCount + " yRectsCount: " + yRectsCount);
-	recsSceneWidth = rectArea * xRectsCount;
-	recsSceneHeight = rectArea * yRectsCount;
-	recsSceneX = (SCENE_WIDTH-recsSceneWidth)/2;
-	recsSceneY = (SCENE_HEIGHT-recsSceneHeight)/2;
+function updateSquaresScene(){
+	//log("xSquaresCount: " + xSquaresCount + " ySquaresCount: " + ySquaresCount);
+	squaresSceneWidth = squareArea * xSquaresCount;
+	squaresSceneHeight = squareArea * ySquaresCount;
+	squaresSceneX = (SCENE_WIDTH-squaresSceneWidth)/2;
+	squaresSceneY = (SCENE_HEIGHT-squaresSceneHeight)/2;
 }
 
 function nextUserPositionIsValid(originalPositionX, originalPositionY){
-	//log("userSquare.positionX: " + userSquare.positionX + " userSquare.positionY: " + userSquare.positionY + "recsSceneX: " + recsSceneX + "recsSceneY: " + recsSceneY + "recsSceneWidth: " + recsSceneWidth + "recsSceneHeight: " + recsSceneHeight + "rectArea: " + rectArea );
-	if(!userSquare.actualPositionIsValid(recsSceneX, recsSceneY, recsSceneWidth, recsSceneHeight, rectArea))
+	//log("userSquare.positionX: " + userSquare.positionX + " userSquare.positionY: " + userSquare.positionY + "squaresSceneX: " + squaresSceneX + "squaresSceneY: " + squaresSceneY + "squaresSceneWidth: " + squaresSceneWidth + "squaresSceneHeight: " + squaresSceneHeight + "squareArea: " + squareArea );
+	if(!userSquare.actualPositionIsValid(squaresSceneX, squaresSceneY, squaresSceneWidth, squaresSceneHeight, squareArea))
 		return false;	
 	
-	if(userSquare.isInside(recsSceneX, recsSceneY, recsSceneWidth, recsSceneHeight))
-		moveRects(originalPositionX, originalPositionY);
+	if(userSquare.isInside(squaresSceneX, squaresSceneY, squaresSceneWidth, squaresSceneHeight))
+		moveSquares(originalPositionX, originalPositionY);
 	
 	return true;
 }
 
-function moveRects(originalPositionX, originalPositionY){
+function moveSquares(originalPositionX, originalPositionY){
 	if(userSquare.positionX - originalPositionX != 0)
-		moveRow((userSquare.positionY - recsSceneY) / rectArea, (userSquare.positionX - originalPositionX)/ rectArea);
+		moveRow((userSquare.positionY - squaresSceneY) / squareArea, (userSquare.positionX - originalPositionX)/ squareArea);
 	if(userSquare.positionY - originalPositionY != 0)
-		moveCol((userSquare.positionX - recsSceneX) / rectArea, (userSquare.positionY - originalPositionY) / rectArea);
+		moveCol((userSquare.positionX - squaresSceneX) / squareArea, (userSquare.positionY - originalPositionY) / squareArea);
 	checkForCompletes();
 }
 
@@ -234,48 +238,61 @@ function checkForCompletes(){
 function moveRow(row, movement){
 	var auxcolor = userSquare.color;
 	if(movement<0){ //to left
-		userSquare.color = rectsColorArray[0][row];
-		for(var i=0;i<xRectsCount-1;i++){
-			rectsColorArray[i][row] = rectsColorArray[i+1][row];
+		//userSquare.color = rectsColorArray[0][row];
+		userSquare.color = squaresMatrix[0][row].color;
+		for(var i=0;i<xSquaresCount-1;i++){
+			//rectsColorArray[i][row] = rectsColorArray[i+1][row];
+			squaresMatrix[i][row].color = squaresMatrix[i+1][row].color
 		}
-		rectsColorArray[xRectsCount-1][row] = auxcolor;
-		userSquare.moveX(-(xRectsCount)*rectArea);
+		//rectsColorArray[xSquaresCount-1][row] = auxcolor;
+		squaresMatrix[xSquaresCount-1][row].color = auxcolor;
+		userSquare.moveX(-(xSquaresCount)*squareArea);
 	}
 	else{ //to right
-		userSquare.color = rectsColorArray[xRectsCount-1][row];
-		for(var i=xRectsCount-2;i>=0;i--){
-			rectsColorArray[i+1][row] = rectsColorArray[i][row];
+		//userSquare.color = rectsColorArray[xSquaresCount-1][row];
+		userSquare.color = squaresMatrix[xSquaresCount-1][row].color;
+		for(var i=xSquaresCount-2;i>=0;i--){
+			//rectsColorArray[i+1][row] = rectsColorArray[i][row];
+			squaresMatrix[i+1][row].color = squaresMatrix[i][row].color
 		}
-		rectsColorArray[0][row] = auxcolor;
-		userSquare.moveX((xRectsCount)*rectArea);
+		//rectsColorArray[0][row] = auxcolor;
+		squaresMatrix[0][row].color = auxcolor;
+		userSquare.moveX((xSquaresCount)*squareArea);
 	}
 }
 
 function moveCol(col, movement){
 	var auxcolor = userSquare.color;
 	if(movement<0){ //to bottom
-		userSquare.color = rectsColorArray[col][0];
-		for(var i=0;i<yRectsCount-1;i++){
-			rectsColorArray[col][i] = rectsColorArray[col][i+1];
+		//userSquare.color = rectsColorArray[col][0];
+		userSquare.color = squaresMatrix[col][0].color;
+		for(var i=0;i<ySquaresCount-1;i++){
+			//rectsColorArray[col][i] = rectsColorArray[col][i+1];
+			squaresMatrix[col][i].color = squaresMatrix[col][i+1].color;
 		}
-		rectsColorArray[col][yRectsCount-1] = auxcolor;
-		userSquare.moveY(-(yRectsCount)*rectArea);
+		//rectsColorArray[col][ySquaresCount-1] = auxcolor;
+		squaresMatrix[col][ySquaresCount-1].color = auxcolor;
+		userSquare.moveY(-(ySquaresCount)*squareArea);
 	}
 	else{ //to top
-		userSquare.color = rectsColorArray[col][yRectsCount-1];
-		for(var i=yRectsCount-2;i>=0;i--){
+		//userSquare.color = rectsColorArray[col][ySquaresCount-1];
+		userSquare.color = squaresMatrix[col][ySquaresCount-1].color;
+		for(var i=ySquaresCount-2;i>=0;i--){
 			rectsColorArray[col][i+1] = rectsColorArray[col][i];
+			squaresMatrix[col][i+1].color = squaresMatrix[col][i].color;
 		}
-		rectsColorArray[col][0] = auxcolor;
-		userSquare.moveY((yRectsCount)*rectArea);
+		//rectsColorArray[col][0] = auxcolor;
+		squaresMatrix[col][0].color = auxcolor;
+		userSquare.moveY((ySquaresCount)*squareArea);
 	}
 }
 
 function checkForCompleteCols(){
 	var complete = true;
-	for(var i=0;i<xRectsCount;i++){
-		for(var j=0;j<yRectsCount-1;j++){
-			if(rectsColorArray[i][j] != rectsColorArray[i][j+1])
+	for(var i=0;i<xSquaresCount;i++){
+		for(var j=0;j<ySquaresCount-1;j++){
+			//if(rectsColorArray[i][j] != rectsColorArray[i][j+1])
+			if(squaresMatrix[i][j].color != squaresMatrix[i][j+1].color)
 				complete = false;
 		}
 		if(complete)
@@ -286,9 +303,10 @@ function checkForCompleteCols(){
 
 function checkForCompleteRows(){
 	var complete = true;
-	for(var i=0;i<yRectsCount;i++){
-		for(var j=0;j<xRectsCount-1;j++){
-			if(rectsColorArray[j][i] != rectsColorArray[j+1][i])
+	for(var i=0;i<ySquaresCount;i++){
+		for(var j=0;j<xSquaresCount-1;j++){
+			//if(rectsColorArray[j][i] != rectsColorArray[j+1][i])
+			if(squaresMatrix[j][i].color != squaresMatrix[j+1][i].color)
 				complete = false;
 		}
 		if(complete)
@@ -299,44 +317,46 @@ function checkForCompleteRows(){
 
 function deleteCol(col){
 //	log("There's a complete col: " + col);
-	for(var i=col;i<xRectsCount-1;i++){
-		for(var j=0;j<yRectsCount;j++){
-			rectsColorArray[i][j] = rectsColorArray[i+1][j];
+	for(var i=col;i<xSquaresCount-1;i++){
+		for(var j=0;j<ySquaresCount;j++){
+			//rectsColorArray[i][j] = rectsColorArray[i+1][j];
+			squaresMatrix[i][j].color = squaresMatrix[i+1][j].color;
 		}
 	}
-	userSquare.updatePositionByDeletingCol(recsSceneX, recsSceneWidth, rectArea);
-	xRectsCount--;
+	userSquare.updatePositionByDeletingCol(squaresSceneX, squaresSceneWidth, squareArea);
+	xSquaresCount--;
 	
-	resizeRectWidth();
+	resizeSquaresWidth();
 	levelCount = 0;
 	
 	if(!isWinner()){
-		updateRectsScene();
+		updateSquaresScene();
 		checkForCompletes();
 	}
 }
 
 function deleteRow(row){
 //	log("There's a complete row: " + row);
-	for(var i=row;i<yRectsCount-1;i++){
-		for(var j=0;j<xRectsCount;j++){
-			rectsColorArray[j][i] = rectsColorArray[j][i+1];
+	for(var i=row;i<ySquaresCount-1;i++){
+		for(var j=0;j<xSquaresCount;j++){
+			//rectsColorArray[j][i] = rectsColorArray[j][i+1];
+			squaresMatrix[j][i].color = squaresMatrix[j][i+1].color;
 		}
 	}
-	userSquare.updatePositionByDeletingRow(recsSceneY, recsSceneHeight, rectArea);
-	yRectsCount--;	
+	userSquare.updatePositionByDeletingRow(squaresSceneY, squaresSceneHeight, squareArea);
+	ySquaresCount--;	
 	
-	resizeRectWidth();
+	resizeSquaresWidth();
 	levelCount = 0;
 	
 	if(!isWinner()){
-		updateRectsScene();
+		updateSquaresScene();
 		checkForCompletes();
 	}
 }
 
 function isWinner(){
-	if(xRectsCount==1 || yRectsCount==1){
+	if(xSquaresCount==1 || ySquaresCount==1){
 		log("Congratulations!");
 		playEnabled = false;
 		stopCounters();
@@ -353,7 +373,7 @@ function clearScreen(){
 	canvasContext.fillRect (0, 0, SCENE_WIDTH, SCENE_HEIGHT);
 }
 
-function resizeRectWidth(){
+function resizeSquaresWidth(){
 	//toDo: Try to set rects width bigger when rects count decrease, and smaller when it increase.
 }
 
@@ -395,35 +415,39 @@ function levelCounter(){
 }
 
 function nextLevel(){
-	if(xRectsCount<yRectsCount){
-		xRectsCount++;
-		for(var i=0;i<yRectsCount;i++)
-			rectsColorArray[xRectsCount-1][i] = getRandomColor();
-		userSquare.updatePositionByAddingCol(recsSceneX, recsSceneWidth, rectArea);
+	if(xSquaresCount<ySquaresCount){
+		xSquaresCount++;
+		for(var i=0;i<ySquaresCount;i++){
+			//rectsColorArray[xSquaresCount-1][i] = getRandomColor();
+			squaresMatrix[xSquaresCount-1][i].color = getRandomColor();
+		}
+		userSquare.updatePositionByAddingCol(squaresSceneX, squaresSceneWidth, squareArea);
 	}
 	else{
-		yRectsCount++;
-		for(var i=0;i<xRectsCount;i++)
-			rectsColorArray[i][yRectsCount-1] = getRandomColor();
-		userSquare.updatePositionByAddingRow(recsSceneY, recsSceneHeight, rectArea);
+		ySquaresCount++;
+		for(var i=0;i<xSquaresCount;i++){
+			//rectsColorArray[i][ySquaresCount-1] = getRandomColor();
+			squaresMatrix[i][ySquaresCount-1].color = getRandomColor();
+		}
+		userSquare.updatePositionByAddingRow(squaresSceneY, squaresSceneHeight, squareArea);
 	}
 	if(isLooser()){
 		playEnabled = false;
 	}
 	else{
 		updateLevelMaxCount();
-		updateRectsScene();
+		updateSquaresScene();
 		drawCanvas();
 	}
 }
 
 function updateLevelMaxCount(){
-	levelMaxCount = (yRectsCount+xRectsCount)* (SLOWER_SPEED - GAME_SPEED);
+	levelMaxCount = (ySquaresCount+xSquaresCount)* (SLOWER_SPEED - GAME_SPEED);
 	
 }
 
 function isLooser(){
-	if(yRectsCount > MAX_RECTS || xRectsCount > MAX_RECTS){
+	if(ySquaresCount > MAX_SQUARES_NUMBER || xSquaresCount > MAX_SQUARES_NUMBER){
 		log("Game over.");
 		playEnabled = false;
 		stopCounters();
