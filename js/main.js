@@ -227,7 +227,7 @@ function moveSquares(originalPositionX, originalPositionY){
 		moveRowWithAnimation((userSquare.positionY - squaresSceneY) / squareArea, (userSquare.positionX - originalPositionX)/ squareArea);
 	if(userSquare.positionY - originalPositionY != 0)
 		moveColWithAnimation((userSquare.positionX - squaresSceneX) / squareArea, (userSquare.positionY - originalPositionY) / squareArea);
-	checkForCompletes();
+	
 }
 
 function checkForCompletes(){
@@ -236,17 +236,18 @@ function checkForCompletes(){
 }
 
 var movingCount = 0; 
+var DELTA_MOV_ANIMATION = 6;
 function moveRowWithAnimation(row, movement){
 	if(movingCount==0){
 		playEnabled = false;
 		userSquare.moveX(-movement * squareArea);
 	}
-	movingCount+=1;
+	movingCount+=DELTA_MOV_ANIMATION;
 	for(var i=0;i<xSquaresCount;i++){
 		//rectsColorArray[i][row] = rectsColorArray[i+1][row];
-		squaresMatrix[i][row].moveX(movement);
+		squaresMatrix[i][row].moveX(movement * DELTA_MOV_ANIMATION);
 	}
-	userSquare.moveX(movement);
+	userSquare.moveX(movement * DELTA_MOV_ANIMATION);
 	if(movingCount<squareArea)
 		setTimeout("moveRowWithAnimation(" + row + ", " + movement + ")", 1);
 	else{
@@ -256,6 +257,7 @@ function moveRowWithAnimation(row, movement){
 		movingCount = 0;
 		//userSquare.moveX(-movement * squareArea);
 		moveRow(row, movement);
+		checkForCompletes();
 		playEnabled = true;
 	}
 }
@@ -265,12 +267,12 @@ function moveColWithAnimation(col, movement){
 		playEnabled = false;
 		userSquare.moveY(-movement * squareArea);
 	}
-	movingCount+=1;
+	movingCount+=DELTA_MOV_ANIMATION;
 	for(var i=0;i<ySquaresCount;i++){
 		//rectsColorArray[i][row] = rectsColorArray[i+1][row];
-		squaresMatrix[col][i].moveY(movement);
+		squaresMatrix[col][i].moveY(movement * DELTA_MOV_ANIMATION);
 	}
-	userSquare.moveY(movement);
+	userSquare.moveY(movement * DELTA_MOV_ANIMATION);
 	if(movingCount<squareArea)
 		setTimeout("moveColWithAnimation(" + col + ", " + movement + ")", 1);
 	else{
@@ -280,6 +282,7 @@ function moveColWithAnimation(col, movement){
 		movingCount = 0;
 		//userSquare.moveX(-movement * squareArea);
 		moveCol(col, movement);
+		checkForCompletes();
 		playEnabled = true;
 	}
 }
@@ -296,7 +299,8 @@ function moveRow(row, movement){
 		}
 		//rectsColorArray[xSquaresCount-1][row] = auxcolor;
 		squaresMatrix[xSquaresCount-1][row].color = auxcolor;
-		userSquare.moveX(-(xSquaresCount)*squareArea);
+		//userSquare.moveX(-(xSquaresCount)*squareArea);
+		userSquare.positionX = squaresMatrix[0][0].positionX - squareArea;
 	}
 	else{ //to right
 		//userSquare.color = rectsColorArray[xSquaresCount-1][row];
@@ -307,7 +311,8 @@ function moveRow(row, movement){
 		}
 		//rectsColorArray[0][row] = auxcolor;
 		squaresMatrix[0][row].color = auxcolor;
-		userSquare.moveX((xSquaresCount)*squareArea);
+		//userSquare.moveX((xSquaresCount)*squareArea);
+		userSquare.positionX = squaresMatrix[xSquaresCount-1][0].positionX + squareArea;
 	}
 }
 
@@ -322,7 +327,8 @@ function moveCol(col, movement){
 		}
 		//rectsColorArray[col][ySquaresCount-1] = auxcolor;
 		squaresMatrix[col][ySquaresCount-1].color = auxcolor;
-		userSquare.moveY(-(ySquaresCount)*squareArea);
+		//userSquare.moveY(-(ySquaresCount)*squareArea);
+		userSquare.positionY = squaresMatrix[0][0].positionY - squareArea;
 	}
 	else{ //to top
 		//userSquare.color = rectsColorArray[col][ySquaresCount-1];
@@ -333,7 +339,8 @@ function moveCol(col, movement){
 		}
 		//rectsColorArray[col][0] = auxcolor;
 		squaresMatrix[col][0].color = auxcolor;
-		userSquare.moveY((ySquaresCount)*squareArea);
+		//userSquare.moveY((ySquaresCount)*squareArea);
+		userSquare.positionY = squaresMatrix[0][ySquaresCount-1].positionY + squareArea;
 	}
 }
 
