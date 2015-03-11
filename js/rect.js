@@ -1,4 +1,0 @@
-function rect(){
-	this.positionX
-	
-}

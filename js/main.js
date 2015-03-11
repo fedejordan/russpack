@@ -26,7 +26,6 @@ Retencion de usuarios:
 
 */
 
-
 //Globals
 //Game drawing
 var GAME_TYPE_NORMAL = 0;
@@ -96,19 +95,6 @@ function drawRect(x, y, w, h, canvasContext){
 	canvasContext.fillRect (x, y, w, h);
 }
 		
-
-function log(text, isNew){
-	var layer=document.getElementById("log");
-	if (isNew)
-		layer.innerHTML+="<br/>"+text;
-	else
-		layer.innerHTML=text;
-}
-		
-function stop(){
-	clearInterval(temporizador);
-}
-		
 function getRandomColor() {
 	if(gameType!=GAME_TYPE_IMPOSSIBLE){
 		if(gameType==GAME_TYPE_GRAY_SCALE){
@@ -164,11 +150,7 @@ document.onkeydown=function(e){
 			default:
 				break;
 		}
-		if (nextUserPositionIsValid(originalPositionX, originalPositionY)){
-			var a; //drawCanvas();
-			//log("nextUserPositionIsValid = true");
-		}
-		else{
+		if (!nextUserPositionIsValid(originalPositionX, originalPositionY)){
 			//log("nextUserPositionIsValid = false");
 			userSquare.updatePosition(originalPositionX, originalPositionY);
 		}
