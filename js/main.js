@@ -44,6 +44,7 @@ var ANIMATIONS_ENABLED = true;
 var BORDER_COLOR = "#000000";
 var squareArea = SQUARE_WIDTH + RECTS_SEPARATION;
 var gameType;
+var drawingEnabled;
 
 //Game playing
 var INITIAL_SQUARES_NUMBER = 5;
@@ -51,7 +52,6 @@ var NUMBER_OF_COLORS = 5;
 var MAX_SQUARES_NUMBER = 10;
 var xSquaresCount;
 var ySquaresCount;
-var rectsColorArray;
 var squaresSceneWidth;
 var squaresSceneHeight;
 var squaresSceneX;
@@ -63,7 +63,7 @@ var canvasContext;
 var squaresMatrix;
 
 //Timer
-var GAME_SPEED = 10;
+var GAME_SPEED = 5;
 var SLOWER_SPEED = 100;
 var GAME_COUNTER_DURATION = 1000;
 var LEVEL_COUNTER_DURATION = 1;
@@ -75,28 +75,18 @@ var gameTimer;
 
 function drawCanvas(){
 	clearScreen();
-	if(playEnabled){
+	if(drawingEnabled){
 		drawLevelTimerBar();
+		
 		for(var i=0;i<xSquaresCount;i++){
 			for(var j=0;j<ySquaresCount;j++){
-				//canvasContext.fillStyle = rectsColorArray[i][j];
-				//drawRect(squaresSceneX + squareArea *i, squaresSceneY + squareArea*j, SQUARE_WIDTH, SQUARE_WIDTH, canvasContext);
-				squaresMatrix[i][j].updatePosition(squaresSceneX + squareArea *i, squaresSceneY + squareArea*j);
 				squaresMatrix[i][j].border = squaresBorder;
 				squaresMatrix[i][j].draw();
 			}
 		}
-	userSquare.border = squaresBorder;
-	userSquare.draw();
+		userSquare.border = squaresBorder;
+		userSquare.draw();
 	}
-}
-		
-function drawRect(x, y, w, h, canvasContext){
-	var rectColor = canvasContext.fillStyle;
-	canvasContext.fillStyle = BORDER_COLOR;
-	canvasContext.fillRect (x - squaresBorder, y - squaresBorder, w + 2 * squaresBorder, h + 2 * squaresBorder);
-	canvasContext.fillStyle = rectColor;
-	canvasContext.fillRect (x, y, w, h);
 }
 		
 function getRandomColor() {
@@ -165,9 +155,10 @@ function initScene(){
 	canvas = document.getElementById('myCanvas');
 	canvasContext = canvas.getContext('2d');
 	playEnabled = true;
+	drawingEnabled = true;
 	gameType = GAME_TYPE_NORMAL;
-	initSquaresScene();
 	initSquares();
+	initSquaresScene();
 	drawCanvas();
 	initCounters();
 }
@@ -209,6 +200,15 @@ function updateSquaresScene(){
 	squaresSceneHeight = squareArea * ySquaresCount;
 	squaresSceneX = (SCENE_WIDTH-squaresSceneWidth)/2;
 	squaresSceneY = (SCENE_HEIGHT-squaresSceneHeight)/2;
+	updateSquaresPosition();
+}
+
+function updateSquaresPosition(){
+	for(var i=0;i<xSquaresCount;i++){
+		for(var j=0;j<ySquaresCount;j++){
+			squaresMatrix[i][j].updatePosition(squaresSceneX + squareArea *i, squaresSceneY + squareArea*j);
+		}
+	}
 }
 
 function nextUserPositionIsValid(originalPositionX, originalPositionY){
@@ -224,9 +224,9 @@ function nextUserPositionIsValid(originalPositionX, originalPositionY){
 
 function moveSquares(originalPositionX, originalPositionY){
 	if(userSquare.positionX - originalPositionX != 0)
-		moveRow((userSquare.positionY - squaresSceneY) / squareArea, (userSquare.positionX - originalPositionX)/ squareArea);
+		moveRowWithAnimation((userSquare.positionY - squaresSceneY) / squareArea, (userSquare.positionX - originalPositionX)/ squareArea);
 	if(userSquare.positionY - originalPositionY != 0)
-		moveCol((userSquare.positionX - squaresSceneX) / squareArea, (userSquare.positionY - originalPositionY) / squareArea);
+		moveColWithAnimation((userSquare.positionX - squaresSceneX) / squareArea, (userSquare.positionY - originalPositionY) / squareArea);
 	checkForCompletes();
 }
 
@@ -235,14 +235,64 @@ function checkForCompletes(){
 	checkForCompleteCols();
 }
 
+var movingCount = 0; 
+function moveRowWithAnimation(row, movement){
+	if(movingCount==0){
+		playEnabled = false;
+		userSquare.moveX(-movement * squareArea);
+	}
+	movingCount+=1;
+	for(var i=0;i<xSquaresCount;i++){
+		//rectsColorArray[i][row] = rectsColorArray[i+1][row];
+		squaresMatrix[i][row].moveX(movement);
+	}
+	userSquare.moveX(movement);
+	if(movingCount<squareArea)
+		setTimeout("moveRowWithAnimation(" + row + ", " + movement + ")", 1);
+	else{
+		for(var i=0;i<xSquaresCount;i++){
+			squaresMatrix[i][row].moveX(-movement * movingCount);
+		}
+		movingCount = 0;
+		//userSquare.moveX(-movement * squareArea);
+		moveRow(row, movement);
+		playEnabled = true;
+	}
+}
+
+function moveColWithAnimation(col, movement){
+	if(movingCount==0){
+		playEnabled = false;
+		userSquare.moveY(-movement * squareArea);
+	}
+	movingCount+=1;
+	for(var i=0;i<ySquaresCount;i++){
+		//rectsColorArray[i][row] = rectsColorArray[i+1][row];
+		squaresMatrix[col][i].moveY(movement);
+	}
+	userSquare.moveY(movement);
+	if(movingCount<squareArea)
+		setTimeout("moveColWithAnimation(" + col + ", " + movement + ")", 1);
+	else{
+		for(var i=0;i<ySquaresCount;i++){
+			squaresMatrix[col][i].moveY(-movement * movingCount);
+		}
+		movingCount = 0;
+		//userSquare.moveX(-movement * squareArea);
+		moveCol(col, movement);
+		playEnabled = true;
+	}
+}
+
 function moveRow(row, movement){
 	var auxcolor = userSquare.color;
 	if(movement<0){ //to left
 		//userSquare.color = rectsColorArray[0][row];
+		if(ANIMATIONS_ENABLED)
 		userSquare.color = squaresMatrix[0][row].color;
 		for(var i=0;i<xSquaresCount-1;i++){
 			//rectsColorArray[i][row] = rectsColorArray[i+1][row];
-			squaresMatrix[i][row].color = squaresMatrix[i+1][row].color
+			squaresMatrix[i][row].color = squaresMatrix[i+1][row].color;
 		}
 		//rectsColorArray[xSquaresCount-1][row] = auxcolor;
 		squaresMatrix[xSquaresCount-1][row].color = auxcolor;
@@ -278,7 +328,7 @@ function moveCol(col, movement){
 		//userSquare.color = rectsColorArray[col][ySquaresCount-1];
 		userSquare.color = squaresMatrix[col][ySquaresCount-1].color;
 		for(var i=ySquaresCount-2;i>=0;i--){
-			rectsColorArray[col][i+1] = rectsColorArray[col][i];
+			//rectsColorArray[col][i+1] = rectsColorArray[col][i];
 			squaresMatrix[col][i+1].color = squaresMatrix[col][i].color;
 		}
 		//rectsColorArray[col][0] = auxcolor;
@@ -324,6 +374,7 @@ function deleteCol(col){
 		}
 	}
 	userSquare.updatePositionByDeletingCol(squaresSceneX, squaresSceneWidth, squareArea);
+
 	xSquaresCount--;
 	
 	resizeSquaresWidth();
@@ -359,6 +410,7 @@ function isWinner(){
 	if(xSquaresCount==1 || ySquaresCount==1){
 		log("Congratulations!");
 		playEnabled = false;
+		drawingEnabled = false;
 		stopCounters();
 		clearScreen();
 		return true;
@@ -433,6 +485,7 @@ function nextLevel(){
 	}
 	if(isLooser()){
 		playEnabled = false;
+		drawingEnabled = false;
 	}
 	else{
 		updateLevelMaxCount();
@@ -450,6 +503,7 @@ function isLooser(){
 	if(ySquaresCount > MAX_SQUARES_NUMBER || xSquaresCount > MAX_SQUARES_NUMBER){
 		log("Game over.");
 		playEnabled = false;
+		drawingEnabled = false;
 		stopCounters();
 		return true;
 	}
