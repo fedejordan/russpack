@@ -63,10 +63,8 @@ var squaresMatrix;
 //Timers
 var GAME_SPEED = 5;
 var SLOWER_SPEED = 100;
-var GAME_COUNTER_DURATION = 1000;
 var LEVEL_COUNTER_DURATION = 1;
 var levelMaxCount;
-var gameCount;
 var levelCount;
 var levelTimer;
 var gameTimer;
@@ -121,11 +119,9 @@ function getRandomColor() {
 }
 		
 document.onkeydown=function(e){
-	//dibujarCanvas();
 	if(playEnabled){
 		var originalPositionX = userSquare.positionX;
 		var originalPositionY = userSquare.positionY;
-		//log("userSquare.positionX: " + userSquare.positionX + " userSquare.positionY: " + userSquare.positionY);
 		switch(e.keyCode){
 			case 39:
 				userSquare.moveX(squareArea);
@@ -397,32 +393,20 @@ function resizeSquaresWidth(){
 }
 
 function initCounters(){
-	gameCount = 0;
 	levelCount = 0;
 	updateLevelMaxCount();
-	gameTimer = setTimeout("gameCounter()", GAME_COUNTER_DURATION);
+	gameTimer = new GameTimer();
 	levelTimer = setTimeout("levelCounter()", LEVEL_COUNTER_DURATION);
 }
 
-function gameCounter(){
-	gameCount++;
-	updateTimeLabel();
-	gameTimer = setTimeout("gameCounter()", GAME_COUNTER_DURATION);
-}
 
 function stopCounters(){
 	clearTimeout(levelTimer);
-	clearTimeout(gameTimer);
-}
-
-function updateTimeLabel(){
-	var layer=document.getElementById("timeLabel");
-	layer.innerHTML="Game time: " + gameCount;
+	gameTimer.stopTimer();
 }
 
 function levelCounter(){
 	levelCount++;
-	updateTimeLabel();
 	if(levelCount==levelMaxCount){
 		levelCount = 0;
 		nextLevel();
