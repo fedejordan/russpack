@@ -35,11 +35,11 @@ var GAME_TYPE_NUMBERS_AND_COLORS = 3;
 var GAME_TYPE_GRAY_SCALE = 4;
 var BACKGROUND_COLOR = '#CCCCCC'; //
 var SCENE_WIDTH = 1200;
-var SCENE_HEIGHT = 600;
-var SQUARE_WIDTH = 40; //40
-var RECTS_SEPARATION = 5; //5
-var DELTA_MOV_ANIMATION = 6;
-var MAX_SQUARES_BORDER = 5;
+var SCENE_HEIGHT = 500;
+var SQUARE_WIDTH = 30; //40
+var RECTS_SEPARATION = 4; //5
+var DELTA_MOV_ANIMATION = 5;
+var MAX_SQUARES_BORDER = 4;
 var ANIMATIONS_ENABLED = true;
 var squareArea = SQUARE_WIDTH + RECTS_SEPARATION;
 var squaresBorder = 1;
@@ -61,16 +61,13 @@ var userSquare;
 var squaresMatrix;
 
 //Timers
-var GAME_SPEED = 5;
-var SLOWER_SPEED = 100;
-var LEVEL_COUNTER_DURATION = 1;
-var levelMaxCount;
-var levelCount;
 var levelTimer;
 var gameTimer;
 
 function drawCanvas() {
 	clearScreen();
+	if(ANIMATIONS_ENABLED)
+		squaresBorder = MAX_SQUARES_BORDER - MAX_SQUARES_BORDER*levelTimer.levelCount/levelTimer.levelMaxCount;
 	if(drawingEnabled){
 		drawLevelTimerBar();
 		
@@ -143,6 +140,7 @@ document.onkeydown=function(e){
 		}
 	}
 }
+
 function initScene(){
 	canvas = document.getElementById('myCanvas');
 	canvasContext = canvas.getContext('2d');
@@ -151,8 +149,8 @@ function initScene(){
 	gameType = GAME_TYPE_NORMAL;
 	initSquares();
 	initSquaresScene();
-	drawCanvas();
 	initCounters();
+	squaresBorder = MAX_SQUARES_BORDER;
 }
 
 function initSquares(){
@@ -175,7 +173,19 @@ function initSquaresScene(){
 	userSquare = new Square(gameScene.positionX - squareArea, gameScene.positionY - squareArea, SQUARE_WIDTH, getRandomColor(), canvasContext, squaresBorder);
 }
 
+function initCounters(){
+	gameTimer = new GameTimer();
+	levelTimer = new LevelTimer(xSquaresCount, ySquaresCount, nextLevel, drawCanvas);
+	levelTimer.updateLevelMaxCount(xSquaresCount, ySquaresCount);
+}
+
+function stopCounters(){
+	gameTimer.stopTimer();
+	levelTimer.stopTimer();
+}
+
 function updateSquaresScene(){
+	log("Number of squares: " + xSquaresCount*ySquaresCount);
 	gameScene.update(squareArea, xSquaresCount, ySquaresCount, SCENE_WIDTH, SCENE_HEIGHT);
 	updateSquaresPosition();
 }
@@ -334,7 +344,7 @@ function deleteCol(col){
 	xSquaresCount--;
 	
 	resizeSquaresWidth();
-	levelCount = 0;
+	levelTimer.levelCount = 0;
 	
 	if(!isWinner()){
 		updateSquaresScene();
@@ -352,7 +362,7 @@ function deleteRow(row){
 	ySquaresCount--;	
 	
 	resizeSquaresWidth();
-	levelCount = 0;
+	levelTimer.levelCount = 0;
 	
 	if(!isWinner()){
 		updateSquaresScene();
@@ -392,66 +402,36 @@ function resizeSquaresWidth(){
 	
 }
 
-function initCounters(){
-	levelCount = 0;
-	updateLevelMaxCount();
-	gameTimer = new GameTimer();
-	levelTimer = setTimeout("levelCounter()", LEVEL_COUNTER_DURATION);
-}
-
-
-function stopCounters(){
-	clearTimeout(levelTimer);
-	gameTimer.stopTimer();
-}
-
-function levelCounter(){
-	levelCount++;
-	if(levelCount==levelMaxCount){
-		levelCount = 0;
-		nextLevel();
-	}
-	drawCanvas();
-	if(ANIMATIONS_ENABLED)
-		squaresBorder=MAX_SQUARES_BORDER*levelCount/levelMaxCount;
-	levelTimer = setTimeout("levelCounter()", LEVEL_COUNTER_DURATION);
-}
-
 function nextLevel(){
 	if(xSquaresCount<ySquaresCount){
 		xSquaresCount++;
-		for(var i=0;i<ySquaresCount;i++){
-			//rectsColorArray[xSquaresCount-1][i] = getRandomColor();
-			squaresMatrix[xSquaresCount-1][i].color = getRandomColor();
+		if(!isLooser()){
+			for(var i=0;i<ySquaresCount;i++){
+				squaresMatrix[xSquaresCount-1][i].color = getRandomColor();
+			}
+			userSquare.updatePositionByAddingColInGameScene(gameScene, squareArea);
 		}
-		userSquare.updatePositionByAddingColInGameScene(gameScene, squareArea);
 	}
 	else{
 		ySquaresCount++;
-		for(var i=0;i<xSquaresCount;i++){
-			//rectsColorArray[i][ySquaresCount-1] = getRandomColor();
-			squaresMatrix[i][ySquaresCount-1].color = getRandomColor();
+		if(!isLooser()){
+			for(var i=0;i<xSquaresCount;i++){
+				squaresMatrix[i][ySquaresCount-1].color = getRandomColor();
+			}
+			userSquare.updatePositionByAddingRowInGameScene(gameScene, squareArea);
 		}
-		userSquare.updatePositionByAddingRowInGameScene(gameScene, squareArea);
 	}
 	
 	resizeSquaresWidth();
 	
-	if(isLooser()){
-		playEnabled = false;
-		drawingEnabled = false;
-	}
-	else{
-		updateLevelMaxCount();
+	if(!isLooser()){
+		levelTimer.updateLevelMaxCount(xSquaresCount, ySquaresCount);
 		updateSquaresScene();
 		drawCanvas();
 	}
 }
 
-function updateLevelMaxCount(){
-	levelMaxCount = (ySquaresCount+xSquaresCount)* (SLOWER_SPEED - GAME_SPEED);
-	
-}
+
 
 function isLooser(){
 	if(ySquaresCount > MAX_SQUARES_NUMBER || xSquaresCount > MAX_SQUARES_NUMBER){
@@ -467,27 +447,29 @@ function isLooser(){
 
 function drawLevelTimerBar(){
 	var LEVEL_TIMER_BAR_BORDER = 2;
+	var BAR_HEIGHT = SCENE_HEIGHT * 0.03;
 	canvasContext.fillStyle = "#000000";
-	canvasContext.fillRect (0, 0, SCENE_WIDTH, SCENE_HEIGHT * 0.05);
-	canvasContext.fillStyle = calculateLevelTimerBarColor();
+	canvasContext.fillRect (0, 0, SCENE_WIDTH, BAR_HEIGHT);
+	canvasContext.fillStyle = calculateLevelTimerBarColor(levelTimer);
 	var barTotalWidth = SCENE_WIDTH - LEVEL_TIMER_BAR_BORDER * 2;
-	var barTotalHeight = SCENE_HEIGHT * 0.05 - LEVEL_TIMER_BAR_BORDER * 2;
-	var barWidth = (barTotalWidth * levelCount) / levelMaxCount;
+	var barTotalHeight = BAR_HEIGHT - LEVEL_TIMER_BAR_BORDER * 2;
+	var barWidth = (barTotalWidth * levelTimer.levelCount) / levelTimer.levelMaxCount;
+	
 	canvasContext.fillRect (LEVEL_TIMER_BAR_BORDER, LEVEL_TIMER_BAR_BORDER, barWidth, barTotalHeight);
 }
 
-function calculateLevelTimerBarColor(){
+function calculateLevelTimerBarColor(levelTimer){
 	var greenComponent;
-	if(levelCount<levelMaxCount/2)
+	if(levelTimer.levelCount<levelTimer.levelMaxCount/2)
 		greenComponent = 255;
 	else
-		greenComponent = 255*(2 - levelCount / (levelMaxCount/2));
+		greenComponent = 255*(2 - levelTimer.levelCount / (levelTimer.levelMaxCount/2));
 	
 	var redComponent;
-	if(levelCount>levelMaxCount/2)
+	if(levelTimer.levelCount>levelTimer.levelMaxCount/2)
 		redComponent = 255;
 	else
-		redComponent = 255*levelCount/(levelMaxCount/2);
+		redComponent = 255*levelTimer.levelCount/(levelTimer.levelMaxCount/2);
 	
 	var barColor = "#" + hexFromInt(redComponent) + hexFromInt(greenComponent) + "00";
 	//log("barColor: " + barColor + " redComponent: " + hexFromInt(redComponent) + " greenComponent: " + hexFromInt(greenComponent)); 	
