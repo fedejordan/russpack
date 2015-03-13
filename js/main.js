@@ -41,6 +41,7 @@ var RECTS_SEPARATION = 4; //5
 var DELTA_MOV_ANIMATION = 5;
 var MAX_SQUARES_BORDER = 4;
 var ANIMATIONS_ENABLED = true;
+var DRAW_LEVEL_TIMER_BAR = false;
 var squareArea = SQUARE_WIDTH + RECTS_SEPARATION;
 var squaresBorder = 1;
 var canvas;
@@ -63,13 +64,15 @@ var squaresMatrix;
 //Timers
 var levelTimer;
 var gameTimer;
+var levelTimerBar;
 
 function drawCanvas() {
 	clearScreen();
 	if(ANIMATIONS_ENABLED)
 		squaresBorder = MAX_SQUARES_BORDER - MAX_SQUARES_BORDER*levelTimer.levelCount/levelTimer.levelMaxCount;
 	if(drawingEnabled){
-		drawLevelTimerBar();
+		if(DRAW_LEVEL_TIMER_BAR)
+			levelTimerBar.draw();
 		
 		for(var i=0;i<xSquaresCount;i++){
 			for(var j=0;j<ySquaresCount;j++){
@@ -177,6 +180,7 @@ function initCounters(){
 	gameTimer = new GameTimer();
 	levelTimer = new LevelTimer(xSquaresCount, ySquaresCount, nextLevel, drawCanvas);
 	levelTimer.updateLevelMaxCount(xSquaresCount, ySquaresCount);
+	levelTimerBar = new LevelTimerBar(levelTimer, canvasContext);
 }
 
 function stopCounters(){

@@ -10,10 +10,10 @@ function Square(positionX, positionY, width, color, canvasContext, border){
 }
 
 Square.prototype.draw = function(){
-	canvasContext.fillStyle = BORDER_COLOR;
-	canvasContext.fillRect (this.positionX - this.border, this.positionY - this.border, this.width + 2 * this.border, this.width + 2 * this.border);
-	canvasContext.fillStyle = this.color;
-	canvasContext.fillRect (this.positionX, this.positionY, this.width, this.width);
+	this.canvasContext.fillStyle = BORDER_COLOR;
+	this.canvasContext.fillRect (this.positionX - this.border, this.positionY - this.border, this.width + 2 * this.border, this.width + 2 * this.border);
+	this.canvasContext.fillStyle = this.color;
+	this.canvasContext.fillRect (this.positionX, this.positionY, this.width, this.width);
 }
 
 Square.prototype.updatePosition = function(newPositionX, newPositionY){
