@@ -38,18 +38,20 @@ var SCENE_WIDTH = 1200;
 var SCENE_HEIGHT = 500;
 var SQUARE_WIDTH = 30; //40
 var RECTS_SEPARATION = 4; //5
-var DELTA_MOV_ANIMATION = 5;
 var MAX_SQUARES_BORDER = 4;
-var ANIMATIONS_ENABLED = true;
-var DRAW_LEVEL_TIMER_BAR = false;
+var DRAW_LEVEL_TIMER_BAR = true;
 var squareArea = SQUARE_WIDTH + RECTS_SEPARATION;
 var squaresBorder = 1;
 var canvas;
 var canvasContext;
 var gameType;
 var drawingEnabled;
-var movingCount = 0;
 var gameScene;
+
+//Animations
+var DELTA_MOV_ANIMATION = 5;
+var ANIMATIONS_ENABLED = true;
+var movingCount = 0;
 
 //Game playing
 var INITIAL_SQUARES_NUMBER = 5; //5
@@ -60,6 +62,9 @@ var ySquaresCount;
 var playEnabled;
 var userSquare;
 var squaresMatrix;
+
+//Points
+var points;
 
 //Timers
 var levelTimer;
@@ -154,6 +159,7 @@ function initScene(){
 	initSquaresScene();
 	initCounters();
 	squaresBorder = MAX_SQUARES_BORDER;
+	points = 0;
 }
 
 function initSquares(){
@@ -272,41 +278,41 @@ function moveColWithAnimation(col, movement){
 }
 
 function moveRow(row, movement){
-	var auxcolor = userSquare.color;
+	var auxSquare = { color: userSquare.color, points: userSquare.points };
 	if(movement<0){ //to left
-		userSquare.color = squaresMatrix[0][row].color;
+		userSquare.getColorAndPointsFromSquare(squaresMatrix[0][row]);
 		for(var i=0;i<xSquaresCount-1;i++){
-			squaresMatrix[i][row].color = squaresMatrix[i+1][row].color;
+			squaresMatrix[i][row].getColorAndPointsFromSquare(squaresMatrix[i+1][row]);
 		}
-		squaresMatrix[xSquaresCount-1][row].color = auxcolor;
+		squaresMatrix[xSquaresCount-1][row].getColorAndPointsFromSquare(auxSquare);
 		userSquare.positionX = squaresMatrix[0][0].positionX - squareArea;
 	}
 	else{ //to right
-		userSquare.color = squaresMatrix[xSquaresCount-1][row].color;
+		userSquare.getColorAndPointsFromSquare(squaresMatrix[xSquaresCount-1][row]);
 		for(var i=xSquaresCount-2;i>=0;i--){
-			squaresMatrix[i+1][row].color = squaresMatrix[i][row].color
+			squaresMatrix[i+1][row].getColorAndPointsFromSquare(squaresMatrix[i][row]);
 		}
-		squaresMatrix[0][row].color = auxcolor;
+		squaresMatrix[0][row].getColorAndPointsFromSquare(auxSquare);
 		userSquare.positionX = squaresMatrix[xSquaresCount-1][0].positionX + squareArea;
 	}
 }
 
 function moveCol(col, movement){
-	var auxcolor = userSquare.color;
+	var auxSquare = { color: userSquare.color, points: userSquare.points };
 	if(movement<0){ //to bottom
-		userSquare.color = squaresMatrix[col][0].color;
+		userSquare.getColorAndPointsFromSquare(squaresMatrix[col][0]);
 		for(var i=0;i<ySquaresCount-1;i++){
-			squaresMatrix[col][i].color = squaresMatrix[col][i+1].color;
+			squaresMatrix[col][i].getColorAndPointsFromSquare(squaresMatrix[col][i+1]);
 		}
-		squaresMatrix[col][ySquaresCount-1].color = auxcolor;
+		squaresMatrix[col][ySquaresCount-1].getColorAndPointsFromSquare(auxSquare);
 		userSquare.positionY = squaresMatrix[0][0].positionY - squareArea;
 	}
 	else{ //to top
-		userSquare.color = squaresMatrix[col][ySquaresCount-1].color;
+		userSquare.getColorAndPointsFromSquare(squaresMatrix[col][ySquaresCount-1]);
 		for(var i=ySquaresCount-2;i>=0;i--){
-			squaresMatrix[col][i+1].color = squaresMatrix[col][i].color;
+			squaresMatrix[col][i+1].getColorAndPointsFromSquare(squaresMatrix[col][i]);
 		}
-		squaresMatrix[col][0].color = auxcolor;
+		squaresMatrix[col][0].getColorAndPointsFromSquare(auxSquare);
 		userSquare.positionY = squaresMatrix[0][ySquaresCount-1].positionY + squareArea;
 	}
 }
@@ -337,12 +343,30 @@ function checkForCompleteRows(){
 	}
 }
 
+function incrementPointsFromRow(row){
+	var pointsIncrement = 0;
+	for(var j=0;j<xSquaresCount;j++){
+		pointsIncrement+=squaresMatrix[j][row].points;
+	}
+	points+=pointsIncrement;
+}
+
+function incrementPointsFromCol(col){
+	var pointsIncrement = 0;
+	for(var j=0;j<ySquaresCount;j++){
+		pointsIncrement+=squaresMatrix[col][j].points;
+	}
+	points+=pointsIncrement;
+}
+
 function deleteCol(col){
+	incrementPointsFromCol(col);
 	for(var i=col;i<xSquaresCount-1;i++){
 		for(var j=0;j<ySquaresCount;j++){
-			squaresMatrix[i][j].color = squaresMatrix[i+1][j].color;
+			squaresMatrix[i][j].getColorAndPointsFromSquare(squaresMatrix[i+1][j]);
 		}
 	}
+	
 	userSquare.updatePositionByDeletingColInGameScene(gameScene, squareArea);
 
 	xSquaresCount--;
@@ -357,11 +381,13 @@ function deleteCol(col){
 }
 
 function deleteRow(row){
+	incrementPointsFromRow(row);
 	for(var i=row;i<ySquaresCount-1;i++){
 		for(var j=0;j<xSquaresCount;j++){
-			squaresMatrix[j][i].color = squaresMatrix[j][i+1].color;
+			squaresMatrix[j][i].getColorAndPointsFromSquare(squaresMatrix[j][i+1]);
 		}
 	}
+	
 	userSquare.updatePositionByDeletingRowInGameScene(gameScene, squareArea);
 	ySquaresCount--;	
 	

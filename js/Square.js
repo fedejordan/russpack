@@ -1,4 +1,8 @@
 var BORDER_COLOR = "#000000";
+var MAX_POINTS_PER_SQUARE = 10;
+var SQUARE_FONT_NAME = "verdana";
+var SQUARE_FONT_SIZE = "15px";
+var SQUARE_FONT_COLOR = "#fff";
 
 function Square(positionX, positionY, width, color, canvasContext, border){
 	this.positionX = positionX;
@@ -7,6 +11,7 @@ function Square(positionX, positionY, width, color, canvasContext, border){
 	this.color = color;
 	this.canvasContext = canvasContext;
 	this.border = border;
+	this.points = Math.floor(Math.random()*MAX_POINTS_PER_SQUARE) + 1;
 }
 
 Square.prototype.draw = function(){
@@ -14,6 +19,12 @@ Square.prototype.draw = function(){
 	this.canvasContext.fillRect (this.positionX - this.border, this.positionY - this.border, this.width + 2 * this.border, this.width + 2 * this.border);
 	this.canvasContext.fillStyle = this.color;
 	this.canvasContext.fillRect (this.positionX, this.positionY, this.width, this.width);
+	
+	this.canvasContext.font = SQUARE_FONT_SIZE + " " + SQUARE_FONT_NAME;
+	this.canvasContext.fillStyle  = SQUARE_FONT_COLOR;
+	this.canvasContext.textBaseline = "middle";
+	this.canvasContext.textAlign = "center";
+	this.canvasContext.fillText(this.points, this.positionX + this.width / 2, this.positionY + this.width / 2);
 }
 
 Square.prototype.updatePosition = function(newPositionX, newPositionY){
@@ -112,4 +123,13 @@ Square.prototype.updatePositionByAddingColInGameScene = function(gameScene, rect
 
 Square.prototype.updatePositionByAddingRowInGameScene = function(gameScene, rectArea){
 	this.updatePositionByAddingRow(gameScene.positionY, gameScene.height, rectArea);
+}
+
+Square.prototype.getColorAndPointsFromSquare = function(square){
+	this.color = square.color;
+	this.points = square.points;
+}
+
+Square.prototype.copy = function(square){
+	return new Square(square.positionX, square.positionY, square.width, square.color, square.canvasContext, square.border);
 }
