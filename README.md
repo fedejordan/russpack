@@ -1,4 +1,4 @@
 # russpack
-HTML5 arcada game in progress
+HTML5 arcade game in progress
 
 fedejordan99@gmail.com
