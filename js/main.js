@@ -64,7 +64,7 @@ var userSquare;
 var squaresMatrix;
 
 //Points
-var points;
+var pointsManager;
 
 //Timers
 var levelTimer;
@@ -88,6 +88,7 @@ function drawCanvas() {
 		userSquare.border = squaresBorder;
 		userSquare.draw();
 	}
+	pointsManager.draw();
 }
 		
 function getRandomColor() {
@@ -159,7 +160,7 @@ function initScene(){
 	initSquaresScene();
 	initCounters();
 	squaresBorder = MAX_SQUARES_BORDER;
-	points = 0;
+	pointsManager = new PointsManager(canvasContext, SCENE_WIDTH, SCENE_HEIGHT);
 }
 
 function initSquares(){
@@ -348,7 +349,7 @@ function incrementPointsFromRow(row){
 	for(var j=0;j<xSquaresCount;j++){
 		pointsIncrement+=squaresMatrix[j][row].points;
 	}
-	points+=pointsIncrement;
+	pointsManager.addPoints(pointsIncrement);
 }
 
 function incrementPointsFromCol(col){
@@ -356,7 +357,7 @@ function incrementPointsFromCol(col){
 	for(var j=0;j<ySquaresCount;j++){
 		pointsIncrement+=squaresMatrix[col][j].points;
 	}
-	points+=pointsIncrement;
+	pointsManager.addPoints(pointsIncrement);
 }
 
 function deleteCol(col){
