@@ -55,7 +55,8 @@ var drawingEnabled;
 var gameScene;
 
 //Animations
-var DELTA_MOV_ANIMATION = 1;
+var DELTA_MOV_ANIMATION = 6;
+var DELTA_DEL_ANIMATION = 3;
 var ANIMATIONS_ENABLED = true;
 var movingCount = 0;
 
@@ -177,7 +178,7 @@ function initScene(){
 	canvasContext = canvas.getContext('2d');
 	playEnabled = true;
 	drawingEnabled = true;
-	gameType = GAME_TYPE_BLUE_SCALE;
+	gameType = GAME_TYPE_NORMAL;
 	initSquares();
 	initSquaresScene();
 	initCounters();
@@ -263,6 +264,7 @@ function moveRowWithAnimation(row, movement){
 	}
 	movingCount+=DELTA_MOV_ANIMATION;
 	for(var i=0;i<xSquaresCount;i++){
+		console.log("i: " + i + " row: " + row);
 		squaresMatrix[i][row].moveX(movement * DELTA_MOV_ANIMATION);
 	}
 	userSquare.moveX(movement * DELTA_MOV_ANIMATION);
@@ -353,7 +355,7 @@ function checkForCompleteCols(){
 				complete = false;
 		}
 		if(complete)
-			deleteCol(i);
+			deleteColWithAnimation(i);
 		complete = true;
 	}
 }
@@ -366,8 +368,75 @@ function checkForCompleteRows(){
 				complete = false;
 		}
 		if(complete)
-			deleteRow(i);
+			deleteRowWithAnimation(i);
 		complete = true;
+	}
+}
+
+function deleteRowWithAnimation(row){
+	canGoToNextLevel = false;
+	if(movingCount==0){
+		playEnabled = false;
+	}
+	movingCount+=DELTA_DEL_ANIMATION;
+	for(var i=0;i<xSquaresCount;i++){
+		for(var j=0;j<row;j++)
+			squaresMatrix[i][j].moveY(DELTA_DEL_ANIMATION);
+	}
+
+	for(var i=0;i<xSquaresCount;i++){
+		for(var j=row+1;j<ySquaresCount;j++)
+			squaresMatrix[i][j].moveY(-DELTA_DEL_ANIMATION);
+	}
+	// if(userSquare.positionY>gameScene.positionY+(gameScene.height)/2)
+	// 	userSquare.moveY(-DELTA_DEL_ANIMATION);
+	// else if(userSquare.positionY<gameScene.positionY+(gameScene.height)/2)
+	// 	userSquare.moveY(DELTA_DEL_ANIMATION);
+	if(movingCount<squareArea)
+		setTimeout("deleteRowWithAnimation(" + row + ")", 1);
+	else{
+		// if(userSquare.positionY>gameScene.positionY+(gameScene.height)/2)
+		// 	userSquare.moveY(movingCount);
+		// else
+		// 	userSquare.moveY(-movingCount);
+
+		movingCount = 0;
+		deleteRow(row);
+		playEnabled = true;
+		canGoToNextLevel = true;
+	}
+}
+
+function deleteColWithAnimation(col){
+	canGoToNextLevel = false;
+	if(movingCount==0){
+		playEnabled = false;
+	}
+	movingCount+=DELTA_DEL_ANIMATION;
+	for(var i=0;i<ySquaresCount;i++){
+		for(var j=0;j<col;j++)
+			squaresMatrix[j][i].moveX(DELTA_DEL_ANIMATION);
+	}
+
+	for(var i=0;i<ySquaresCount;i++){
+		for(var j=col+1;j<xSquaresCount;j++)
+			squaresMatrix[j][i].moveX(-DELTA_DEL_ANIMATION);
+	}
+	// if(userSquare.positionX>squaresMatrix[col][0].positionX)
+	// 	userSquare.moveX(-DELTA_DEL_ANIMATION);
+	// else if(userSquare.positionX<squaresMatrix[col][0].positionX)
+	// 	userSquare.moveX(DELTA_DEL_ANIMATION);
+	if(movingCount<squareArea)
+		setTimeout("deleteColWithAnimation(" + col + ")", 1);
+	else{
+		// if(userSquare.positionX>squaresMatrix[col][0].positionX)
+		// 	userSquare.moveX(movingCount);
+		// else if(userSquare.positionX<squaresMatrix[col][0].positionX)
+		// 	userSquare.moveX(-movingCount); 
+		movingCount = 0;
+		deleteCol(col);
+		playEnabled = true;
+		canGoToNextLevel = true;
 	}
 }
 
