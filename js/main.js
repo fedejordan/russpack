@@ -349,7 +349,7 @@ function incrementPointsFromRow(row){
 	for(var j=0;j<xSquaresCount;j++){
 		pointsIncrement+=squaresMatrix[j][row].points;
 	}
-	pointsManager.addPoints(pointsIncrement);
+	pointsManager.addPoints(pointsIncrement, 0, row);
 }
 
 function incrementPointsFromCol(col){
@@ -357,7 +357,7 @@ function incrementPointsFromCol(col){
 	for(var j=0;j<ySquaresCount;j++){
 		pointsIncrement+=squaresMatrix[col][j].points;
 	}
-	pointsManager.addPoints(pointsIncrement);
+	pointsManager.addPoints(pointsIncrement, 1, col);
 }
 
 function deleteCol(col){
@@ -403,7 +403,7 @@ function deleteRow(row){
 
 function isWinner(){
 	if(xSquaresCount==1 || ySquaresCount==1){
-		log("Congratulations!");
+		log("Congratulations! Your score is " + pointsManager.points);
 		playEnabled = false;
 		drawingEnabled = false;
 		stopCounters();

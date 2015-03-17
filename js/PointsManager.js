@@ -1,19 +1,22 @@
-var POINTS_FONT_NAME = "arial";
-var POINTS_FONT_SIZE = "60px";
-var POINTS_FONT_COLOR = "#fff";
+var POINTS_FONT_NAME = "calibri";
+var POINTS_FONT_SIZE = "160px";
+var POINTS_FONT_COLOR = "#e4e4e4";
+var POINTS_FONT_STYLE = "bold"
 
 function PointsManager(canvasContext, sceneWidth, sceneHeight){
 	this.points = 0;
 	this.canvasContext = canvasContext;
 	this.sceneWidth = sceneWidth;
 	this.sceneHeight = sceneHeight;
+	this.animationTimerCount = 0;
+	this.pointsIncrementAnimations = [];
 }
 
-PointsManager.prototype.addPoints = function(pointsToAdd){
+PointsManager.prototype.addPoints = function(pointsToAdd, rowOrCol, lineNumber){
 	this.points+=pointsToAdd;
 	this.printPoints();
+	this.pointsIncrementAnimations.push(new PointsIncrementAnimation(pointsToAdd, rowOrCol, lineNumber));
 }
-
 
 PointsManager.prototype.subtractPoints = function(pointsToSubtract){
 	this.points-=pointsToSubtract;
@@ -25,9 +28,17 @@ PointsManager.prototype.printPoints = function(){
 }
 
 PointsManager.prototype.draw = function(){
-	this.canvasContext.font = POINTS_FONT_SIZE + " " + POINTS_FONT_NAME;
+	this.canvasContext.font = POINTS_FONT_STYLE + " " + POINTS_FONT_SIZE + " " + POINTS_FONT_NAME;
 	this.canvasContext.fillStyle  = POINTS_FONT_COLOR;
 	this.canvasContext.textBaseline = "middle";
 	this.canvasContext.textAlign = "left";
 	this.canvasContext.fillText(this.points, this.sceneWidth*0.05, this.sceneHeight*0.2);
+}
+
+//PointsIncrementAnimation
+
+function PointsIncrementAnimation(pointsIncrement, rowOrCol, lineNumber){
+	this.pointsIncrement = pointsIncrement;
+	this.rowOrCol = rowOrCol;
+	this.lineNumber = lineNumber;
 }
