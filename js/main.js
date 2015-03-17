@@ -97,6 +97,9 @@ function drawCanvas() {
 		userSquare.draw();
 	}
 	pointsManager.draw();
+	//Classear
+	gameTimer.draw();
+
 }
 		
 function getRandomColor() {
@@ -178,7 +181,7 @@ function initScene(){
 	canvasContext = canvas.getContext('2d');
 	playEnabled = true;
 	drawingEnabled = true;
-	gameType = GAME_TYPE_NORMAL;
+	gameType = GAME_TYPE_BLUE_SCALE;
 	initSquares();
 	initSquaresScene();
 	initCounters();
@@ -208,7 +211,7 @@ function initSquaresScene(){
 }
 
 function initCounters(){
-	gameTimer = new GameTimer();
+	gameTimer = new GameTimer(canvasContext, SCENE_WIDTH, SCENE_HEIGHT);
 	levelTimer = new LevelTimer(xSquaresCount, ySquaresCount, nextLevel, drawCanvas);
 	levelTimer.updateLevelMaxCount(xSquaresCount, ySquaresCount);
 	levelTimerBar = new LevelTimerBar(levelTimer, canvasContext);
@@ -220,7 +223,7 @@ function stopCounters(){
 }
 
 function updateSquaresScene(){
-	log("Number of squares: " + xSquaresCount*ySquaresCount);
+	//log("Number of squares: " + xSquaresCount*ySquaresCount);
 	gameScene.update(squareArea, xSquaresCount, ySquaresCount, SCENE_WIDTH, SCENE_HEIGHT);
 	updateSquaresPosition();
 }
@@ -264,7 +267,6 @@ function moveRowWithAnimation(row, movement){
 	}
 	movingCount+=DELTA_MOV_ANIMATION;
 	for(var i=0;i<xSquaresCount;i++){
-		console.log("i: " + i + " row: " + row);
 		squaresMatrix[i][row].moveX(movement * DELTA_MOV_ANIMATION);
 	}
 	userSquare.moveX(movement * DELTA_MOV_ANIMATION);
@@ -499,11 +501,12 @@ function deleteRow(row){
 
 function isWinner(){
 	if(xSquaresCount==1 || ySquaresCount==1){
-		log("Congratulations! Your score is " + pointsManager.points);
+		//log("Congratulations! Your score is " + pointsManager.points);
 		playEnabled = false;
 		drawingEnabled = false;
 		stopCounters();
 		clearScreen();
+		pointsManager.draw();
 		return true;
 	}
 	else
@@ -564,7 +567,7 @@ function nextLevel(){
 
 function isLooser(){
 	if(ySquaresCount > MAX_SQUARES_NUMBER || xSquaresCount > MAX_SQUARES_NUMBER){
-		log("Game over.");
+		//log("Game over.");
 		playEnabled = false;
 		drawingEnabled = false;
 		stopCounters();
