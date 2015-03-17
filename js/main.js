@@ -96,6 +96,13 @@ function drawCanvas() {
 		userSquare.border = squaresBorder;
 		userSquare.draw();
 	}
+	else{
+		if(isLooser())
+			drawGameOver();
+		else{
+			drawWin();
+		}
+	}
 	pointsManager.draw();
 	//Classear
 	gameTimer.draw();
@@ -506,7 +513,7 @@ function isWinner(){
 		drawingEnabled = false;
 		stopCounters();
 		clearScreen();
-		pointsManager.draw();
+		drawWin();	
 		return true;
 	}
 	else
@@ -568,6 +575,7 @@ function nextLevel(){
 function isLooser(){
 	if(ySquaresCount > MAX_SQUARES_NUMBER || xSquaresCount > MAX_SQUARES_NUMBER){
 		//log("Game over.");
+		//drawGameOver();
 		playEnabled = false;
 		drawingEnabled = false;
 		stopCounters();
@@ -575,4 +583,20 @@ function isLooser(){
 	}
 	else
 		return false;
+}
+
+function drawGameOver(){
+	drawAtCenterScreen("game over");
+}
+
+function drawWin(){
+	drawAtCenterScreen("Congratulations! You get " + pointsManager.points + " points");
+}
+
+function drawAtCenterScreen(text){
+	canvasContext.font = "bold 60px calibri";
+	canvasContext.fillStyle  = "#fff";
+	canvasContext.textBaseline = "middle";
+	canvasContext.textAlign = "center";
+	canvasContext.fillText(text, SCENE_WIDTH*0.5, SCENE_HEIGHT*0.5);
 }
