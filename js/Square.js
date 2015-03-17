@@ -1,8 +1,9 @@
-var BORDER_COLOR = "#000000";
+var BORDER_COLOR = "#111";
 var MAX_POINTS_PER_SQUARE = 10;
-var SQUARE_FONT_NAME = "verdana";
-var SQUARE_FONT_SIZE = "15px";
-var SQUARE_FONT_COLOR = "#fff";
+var SQUARE_FONT_NAME = "calibri";
+var SQUARE_FONT_SIZE = "20px";
+var SQUARE_FONT_COLOR = "#ccc";
+var SQUARE_FONT_STYLE = "bold"
 
 function Square(positionX, positionY, width, color, canvasContext, border){
 	this.positionX = positionX;
@@ -20,7 +21,7 @@ Square.prototype.draw = function(){
 	this.canvasContext.fillStyle = this.color;
 	this.canvasContext.fillRect (this.positionX, this.positionY, this.width, this.width);
 	
-	this.canvasContext.font = SQUARE_FONT_SIZE + " " + SQUARE_FONT_NAME;
+	this.canvasContext.font = SQUARE_FONT_STYLE + " " + SQUARE_FONT_SIZE + " " + SQUARE_FONT_NAME;
 	this.canvasContext.fillStyle  = SQUARE_FONT_COLOR;
 	this.canvasContext.textBaseline = "middle";
 	this.canvasContext.textAlign = "center";

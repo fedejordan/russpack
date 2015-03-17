@@ -1,6 +1,6 @@
 var POINTS_FONT_NAME = "calibri";
-var POINTS_FONT_SIZE = "160px";
-var POINTS_FONT_COLOR = "#e4e4e4";
+var POINTS_FONT_SIZE = "220px";
+var POINTS_FONT_COLOR = "#e8e8e8";//"#e4e4e4";
 var POINTS_FONT_STYLE = "bold"
 
 function PointsManager(canvasContext, sceneWidth, sceneHeight){
@@ -32,7 +32,7 @@ PointsManager.prototype.draw = function(){
 	this.canvasContext.fillStyle  = POINTS_FONT_COLOR;
 	this.canvasContext.textBaseline = "middle";
 	this.canvasContext.textAlign = "left";
-	this.canvasContext.fillText(this.points, this.sceneWidth*0.05, this.sceneHeight*0.2);
+	this.canvasContext.fillText(this.points, this.sceneWidth*0.05, this.sceneHeight*0.23);
 }
 
 //PointsIncrementAnimation

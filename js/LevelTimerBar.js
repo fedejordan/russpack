@@ -1,5 +1,5 @@
-var LEVEL_TIMER_BAR_BORDER = 2;
-var LEVEL_TIMER_BAR_HEIGHT_PERCENT = 0.03;
+var LEVEL_TIMER_BAR_BORDER = 0;
+var LEVEL_TIMER_BAR_HEIGHT_PERCENT = 1;
 
 function LevelTimerBar(levelTimer, canvasContext){
 	this.levelTimer = levelTimer; 
@@ -8,9 +8,9 @@ function LevelTimerBar(levelTimer, canvasContext){
 
 LevelTimerBar.prototype.draw = function(){
 	var BAR_HEIGHT = SCENE_HEIGHT * LEVEL_TIMER_BAR_HEIGHT_PERCENT;
-	this.canvasContext.fillStyle = "#000000";
+	this.canvasContext.fillStyle = "#ccc";
 	this.canvasContext.fillRect (0, 0, SCENE_WIDTH, BAR_HEIGHT); 
-	this.canvasContext.fillStyle = this.calculateLevelTimerBarColor();
+	this.canvasContext.fillStyle = "#d0d0d0";// this.calculateLevelTimerBarColor();
 	var barTotalWidth = SCENE_WIDTH - LEVEL_TIMER_BAR_BORDER * 2;
 	var barTotalHeight = BAR_HEIGHT - LEVEL_TIMER_BAR_BORDER * 2;
 	var barWidth = (barTotalWidth * levelTimer.levelCount) / levelTimer.levelMaxCount;

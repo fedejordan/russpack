@@ -1,18 +1,21 @@
 /*
 RussPack 2015 Federico Jordan
 Desarrollo
-- Comprobar bien lineas completas (recursividad)
+- Comprobar bien lineas completas (recursividad) X
+- Comprobar lineas completas al crearlas
 - Boton "Jugar de nuevo"
 - Boton "Reset"
 - Animaciones, efectos
-- Contador de tiempo (barra)
-- Contador de puntaje
+- Contador de tiempo (barra) X
+- Contador de puntaje X
 - Mejores graficos
-- Fondo nuevo
+- Fondo nuevo X
 - Compartir por facebook
 - Niveles de dificultad
-- Organizar mejor el codigo
+- Organizar mejor el codigo X
 - Estilos CSS
+- Guardar mejores puntajes locales
+- Estadisticas (numero de cuadrados, best score ever, )
 
 Captura de usuarios:
 - Publicidad en facebook
@@ -33,15 +36,18 @@ var GAME_TYPE_IMPOSSIBLE = 1;
 var GAME_TYPE_ONLY_NUMBERS = 2;
 var GAME_TYPE_NUMBERS_AND_COLORS = 3;
 var GAME_TYPE_GRAY_SCALE = 4;
+var GAME_TYPE_BLUE_SCALE = 5;
+var GAME_TYPE_RED_SCALE = 6;
+var GAME_TYPE_GREEN_SCALE = 7;
 var BACKGROUND_COLOR = '#CCCCCC'; //
 var SCENE_WIDTH = 1200;
 var SCENE_HEIGHT = 500;
 var SQUARE_WIDTH = 30; //40
 var RECTS_SEPARATION = 4; //5
-var MAX_SQUARES_BORDER = 4;
+var MAX_SQUARES_BORDER = 2;
 var DRAW_LEVEL_TIMER_BAR = true;
 var squareArea = SQUARE_WIDTH + RECTS_SEPARATION;
-var squaresBorder = 1;
+var squaresBorder = 0;
 var canvas;
 var canvasContext;
 var gameType;
@@ -49,7 +55,7 @@ var drawingEnabled;
 var gameScene;
 
 //Animations
-var DELTA_MOV_ANIMATION = 5;
+var DELTA_MOV_ANIMATION = 1;
 var ANIMATIONS_ENABLED = true;
 var movingCount = 0;
 
@@ -62,6 +68,7 @@ var ySquaresCount;
 var playEnabled;
 var userSquare;
 var squaresMatrix;
+var canGoToNextLevel;
 
 //Points
 var pointsManager;
@@ -95,6 +102,21 @@ function getRandomColor() {
 	if(gameType!=GAME_TYPE_IMPOSSIBLE){
 		if(gameType==GAME_TYPE_GRAY_SCALE){
 			var colors = new Array("#000000","#222222","#444444","#888888","#AAAAAA","#CCCCCC","#EEEEEE","#FFFFFF");
+			var color = colors[Math.floor(Math.random()*NUMBER_OF_COLORS)];
+			return color
+		}
+		else if(gameType==GAME_TYPE_BLUE_SCALE){
+			var colors = new Array("#0000FF","#2222FF","#4444FF","#8888FF","#AAAAFF","#CCCCFF","#EEEEFF","#FFFFFF");
+			var color = colors[Math.floor(Math.random()*NUMBER_OF_COLORS)];
+			return color
+		}
+		if(gameType==GAME_TYPE_GREEN_SCALE){
+			var colors = new Array("#00FF00","#22FF22","#44FF44","#88FF88","#AAFFAA","#CCFFCC","#EEFFEE","#FFFFFF");
+			var color = colors[Math.floor(Math.random()*NUMBER_OF_COLORS)];
+			return color
+		}
+		else if(gameType==GAME_TYPE_RED_SCALE){
+			var colors = new Array("#FF0000","#FF2222","#FF4444","#FF8888","#FFAAAA","#FFCCCC","#FFEEEE","#FFFFFF");
 			var color = colors[Math.floor(Math.random()*NUMBER_OF_COLORS)];
 			return color
 		}
@@ -155,12 +177,13 @@ function initScene(){
 	canvasContext = canvas.getContext('2d');
 	playEnabled = true;
 	drawingEnabled = true;
-	gameType = GAME_TYPE_NORMAL;
+	gameType = GAME_TYPE_BLUE_SCALE;
 	initSquares();
 	initSquaresScene();
 	initCounters();
 	squaresBorder = MAX_SQUARES_BORDER;
 	pointsManager = new PointsManager(canvasContext, SCENE_WIDTH, SCENE_HEIGHT);
+	canGoToNextLevel = true;
 }
 
 function initSquares(){
@@ -233,6 +256,7 @@ function checkForCompletes(){
 }
 
 function moveRowWithAnimation(row, movement){
+	canGoToNextLevel = false;
 	if(movingCount==0){
 		playEnabled = false;
 		userSquare.moveX(-movement * squareArea);
@@ -252,10 +276,12 @@ function moveRowWithAnimation(row, movement){
 		moveRow(row, movement);
 		checkForCompletes();
 		playEnabled = true;
+		canGoToNextLevel = true;
 	}
 }
 
 function moveColWithAnimation(col, movement){
+	canGoToNextLevel = false;
 	if(movingCount==0){
 		playEnabled = false;
 		userSquare.moveY(-movement * squareArea);
@@ -275,6 +301,7 @@ function moveColWithAnimation(col, movement){
 		moveCol(col, movement);
 		checkForCompletes();
 		playEnabled = true;
+		canGoToNextLevel = true;
 	}
 }
 
@@ -434,6 +461,10 @@ function resizeSquaresWidth(){
 }
 
 function nextLevel(){
+	if(!canGoToNextLevel){
+		setTimeout("nextLevel()", 500);
+		return;
+	}
 	if(xSquaresCount<ySquaresCount){
 		xSquaresCount++;
 		if(!isLooser()){
