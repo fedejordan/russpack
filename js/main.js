@@ -70,6 +70,7 @@ var playEnabled;
 var userSquare;
 var squaresMatrix;
 var canGoToNextLevel;
+var movementsCounter;
 
 //Points
 var pointsManager;
@@ -106,6 +107,8 @@ function drawCanvas() {
 	pointsManager.draw();
 	//Classear
 	gameTimer.draw();
+	drawSquaresNumber();
+	drawMovements();
 
 }
 		
@@ -164,15 +167,19 @@ document.onkeydown=function(e){
 		switch(e.keyCode){
 			case 39:
 				userSquare.moveX(squareArea);
+				movementsCounter++;
 				break;
 			case 37:
 				userSquare.moveX(-squareArea);
+				movementsCounter++;
 				break;
 			case 38:
 				userSquare.moveY(-squareArea);
+				movementsCounter++;
 				break;
 			case 40:
 				userSquare.moveY(squareArea);
+				movementsCounter++;	
 				break;
 			default:
 				break;
@@ -195,6 +202,7 @@ function initScene(){
 	squaresBorder = MAX_SQUARES_BORDER;
 	pointsManager = new PointsManager(canvasContext, SCENE_WIDTH, SCENE_HEIGHT);
 	canGoToNextLevel = true;
+	movementsCounter = 0;
 }
 
 function initSquares(){
@@ -595,8 +603,24 @@ function drawWin(){
 
 function drawAtCenterScreen(text){
 	canvasContext.font = "bold 60px calibri";
-	canvasContext.fillStyle  = "#fff";
+	canvasContext.fillStyle  = "#e8e8e8";
 	canvasContext.textBaseline = "middle";
 	canvasContext.textAlign = "center";
 	canvasContext.fillText(text, SCENE_WIDTH*0.5, SCENE_HEIGHT*0.5);
+}
+
+function drawSquaresNumber(){
+	canvasContext.font = "bold 20px calibri";
+	canvasContext.fillStyle  = "#e8e8e8";
+	canvasContext.textBaseline = "middle";
+	canvasContext.textAlign = "left";
+	canvasContext.fillText(ySquaresCount*xSquaresCount + " (" + xSquaresCount + "x" + ySquaresCount + ")", SCENE_WIDTH*0.05, SCENE_HEIGHT*0.77);
+}
+
+function drawMovements(){
+	canvasContext.font = "bold 60px calibri";
+	canvasContext.fillStyle  = "#e8e8e8";
+	canvasContext.textBaseline = "middle";
+	canvasContext.textAlign = "left";
+	canvasContext.fillText(movementsCounter, SCENE_WIDTH*0.05, SCENE_HEIGHT*0.65);
 }

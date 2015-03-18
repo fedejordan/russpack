@@ -5,10 +5,12 @@ var GAME_TIMER_FONT_STYLE = "bold"
 var GAME_COUNTER_DURATION = 1000;
 var gameTimerGlobal;
 
-function GameTimer(canvasContext){
+function GameTimer(canvasContext, sceneWidth, sceneHeight){
 	this.gameCount = 0;
 	gameTimerGlobal = this;
 	this.canvasContext = canvasContext;
+	this.sceneWidth = sceneWidth;
+	this.sceneHeight = sceneHeight;
 	this.timer = setTimeout("gameCounter()", GAME_COUNTER_DURATION);
 }
 
@@ -33,5 +35,5 @@ GameTimer.prototype.draw = function(){
 	this.canvasContext.fillStyle  = GAME_TIMER_FONT_COLOR;
 	this.canvasContext.textBaseline = "middle";
 	this.canvasContext.textAlign = "left";
-	this.canvasContext.fillText(this.gameCount, SCENE_WIDTH*0.05, SCENE_HEIGHT*0.5);
+	this.canvasContext.fillText(this.gameCount, this.sceneWidth*0.05, this.sceneHeight*0.5);
 }
