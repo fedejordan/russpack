@@ -1,5 +1,5 @@
 var GAME_SPEED = 0; //5
-var SLOWER_SPEED = 500;
+var SLOWER_SPEED = 100;
 var LEVEL_COUNTER_DURATION = 1;
 var levelTimerGlobal;
 

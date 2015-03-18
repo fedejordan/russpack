@@ -39,6 +39,7 @@ var GAME_TYPE_GRAY_SCALE = 4;
 var GAME_TYPE_BLUE_SCALE = 5;
 var GAME_TYPE_RED_SCALE = 6;
 var GAME_TYPE_GREEN_SCALE = 7;
+var GAME_TYPE_BLUE_AND_PURPLE_SCALE = 8;
 var BACKGROUND_COLOR = '#CCCCCC'; //
 var SCENE_WIDTH = 1200;
 var SCENE_HEIGHT = 500;
@@ -61,7 +62,7 @@ var ANIMATIONS_ENABLED = true;
 var movingCount = 0;
 
 //Game playing
-var INITIAL_SQUARES_NUMBER = 5; //5
+var INITIAL_SQUARES_NUMBER = 7; //5
 var NUMBER_OF_COLORS = 5;
 var MAX_SQUARES_NUMBER = 10; //10
 var xSquaresCount;
@@ -134,6 +135,11 @@ function getRandomColor() {
 			var color = colors[Math.floor(Math.random()*NUMBER_OF_COLORS)];
 			return color
 		}
+		else if(gameType==GAME_TYPE_BLUE_AND_PURPLE_SCALE){
+			var colors = new Array("#AA81BB","#4048BB","#042FFF","#8080FF","#312165");
+			var color = colors[Math.floor(Math.random()*NUMBER_OF_COLORS)];
+			return color
+		}
 		else if(gameType==GAME_TYPE_ONLY_NUMBERS){
 			return null;
 		}
@@ -195,7 +201,7 @@ function initScene(){
 	canvasContext = canvas.getContext('2d');
 	playEnabled = true;
 	drawingEnabled = true;
-	gameType = GAME_TYPE_BLUE_SCALE;
+	gameType = GAME_TYPE_BLUE_AND_PURPLE_SCALE;
 	initSquares();
 	initSquaresScene();
 	initCounters();
