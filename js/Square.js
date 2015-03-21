@@ -1,5 +1,5 @@
 var BORDER_COLOR = "#111";
-var MAX_POINTS_PER_SQUARE = 10;
+var MAX_POINTS_PER_SQUARE = 5;
 var SQUARE_FONT_NAME = "calibri";
 var SQUARE_FONT_SIZE = "20px";
 var SQUARE_FONT_COLOR = "#ccc";
