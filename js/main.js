@@ -675,3 +675,8 @@ function drawMovements(){
 	canvasContext.textAlign = "left";
 	canvasContext.fillText(movementsCounter, SCENE_WIDTH*0.05, SCENE_HEIGHT*0.65);
 }
+
+function newGame(){
+	console.log("newGame()");
+	initScene();
+}

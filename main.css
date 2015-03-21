@@ -27,7 +27,7 @@ body{
 
 #gameInfo{
 	position: absolute;
-	top: 120px;
+	top: 110px;
 	right: 0px;
 	width: 320px;
 	height: 45%;
@@ -40,10 +40,32 @@ body{
 	padding-left: 20px;
 }
 
+#newGameButton{
+	position: absolute;
+	top: 380px;
+	right: 200px;
+	width: 110px;
+	text-align: center;
+	height: 5%;
+	background-color: #eee	;
+	float: left;
+	font-size: 18px;
+	font-family: calibri;
+	font-weight: bold;
+	padding-top: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+a {
+	color: #777;
+	text-decoration: none;
+}
+
 #googleAdSense{
 	height: 30%;
 	width: 340px;
-	background-color: #ccc;
+	background-color: #ddd;
 	position: absolute;
 	bottom: 0px;
 	right: 0px;
