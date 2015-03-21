@@ -681,3 +681,11 @@ function newGame(){
 	stopCounters();
 	initScene();
 }
+
+function facebookShare(){
+	var title = 'RussPack Game By Federico Jordan';
+	var summary = 'Play this awesome game!';
+	var url = 'file:///C:/Users/Federico/Documents/RussPack%20JScript/main.html';
+	var fb = window.open('http://www.facebook.com/sharer.php?s=100&p[title]='+encodeURIComponent(title)+'&p[url]='+encodeURIComponent(url)+'&p[summary]='+encodeURIComponent(summary));
+	fb.focus();
+}
