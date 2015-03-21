@@ -41,7 +41,7 @@ var GAME_TYPE_RED_SCALE = 6;
 var GAME_TYPE_GREEN_SCALE = 7;
 var GAME_TYPE_BLUE_AND_PURPLE_SCALE = 8;
 var BACKGROUND_COLOR = '#CCCCCC'; //
-var SCENE_WIDTH = 1200;
+var SCENE_WIDTH = 900;
 var SCENE_HEIGHT = 500;
 var SQUARE_WIDTH = 35; //40
 var RECTS_SEPARATION = 4; //5
@@ -657,7 +657,7 @@ function drawAtCenterScreen(text){
 	canvasContext.fillStyle  = "#e8e8e8";
 	canvasContext.textBaseline = "middle";
 	canvasContext.textAlign = "center";
-	canvasContext.fillText(text, SCENE_WIDTH*0.5, SCENE_HEIGHT*0.5);
+	canvasContext.fillText(text, SCENE_WIDTH*0.67, SCENE_HEIGHT*0.5);
 }
 
 function drawSquaresNumber(){
