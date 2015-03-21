@@ -678,5 +678,6 @@ function drawMovements(){
 
 function newGame(){
 	console.log("newGame()");
+	stopCounters();
 	initScene();
 }
